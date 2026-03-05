@@ -1,154 +1,186 @@
-# 💰 Finance Tracker - App Mobile de Finanças Pessoais
+# Personal Finance Tracker
 
-App completo de finanças pessoais desenvolvido com **React Native + Expo**, permitindo:
-- 📷 Escanear recibos com câmera e OCR
-- 💸 Dividir despesas entre pessoas automaticamente
-- 📊 Visualizar gráficos de gastos por categoria
-- 💰 Ver saldo de cada pessoa (quem deve/recebe)
-- 💾 Persistência local com AsyncStorage
+A complete web application built with React and Vite to help users track their personal income and expenses with beautiful charts and monthly summaries.
 
-## 🚀 Como Executar
+## Features
 
-### 1. Instalar Dependências
+- 📊 **Dashboard with Financial Summary** - View total income, expenses, and balance at a glance
+- 📅 **Monthly Tracking** - Filter transactions by month and year
+- ➕ **Add Transactions** - Easily add income and expense transactions
+- 📈 **Interactive Charts** - Visualize your finances with Chart.js
+  - Bar chart showing income vs expenses
+  - Pie chart showing expenses by category
+- 📋 **Transaction History** - View all transactions in a detailed table
+- 🗑️ **Delete Transactions** - Remove unwanted transactions
+- 💾 **Data Persistence** - All data is saved in localStorage
+- 🎨 **Clean UI** - Built with Bootstrap for a professional look
+- 📱 **Responsive Design** - Works on desktop, tablet, and mobile
+
+## Tech Stack
+
+- **React** - UI framework with functional components and hooks
+- **Vite** - Fast build tool and development server
+- **Bootstrap 5** - CSS framework for styling
+- **Chart.js** - Data visualization library
+- **react-chartjs-2** - React wrapper for Chart.js
+- **localStorage** - Client-side data persistence
+
+## Installation
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/FCarvalhal/FinanceTracker.git
+   cd FinanceTracker
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   Navigate to `http://localhost:5173` (or the URL shown in your terminal)
+
+## Build for Production
+
+To create a production build:
+
 ```bash
-npm install
+npm run build
 ```
 
-### 2. Iniciar o App
+The build output will be in the `dist` folder.
+
+To preview the production build:
+
 ```bash
-npx expo start
+npm run preview
 ```
 
-### 3. Abrir no Dispositivo
-- Instale o app **Expo Go** no seu celular (Android/iOS)
-- Escaneie o QR Code que aparece no terminal
-- O app será carregado automaticamente
-
-## 📱 Funcionalidades
-
-### ✅ Adicionar Despesas
-- **Via Câmera**: Tire foto do recibo e o OCR extrai o valor automaticamente
-- **Via Galeria**: Escolha uma foto existente
-- **Manual**: Insira os dados manualmente
-- Categorize a despesa (Alimentação, Transporte, Lazer, Compras, Outros)
-
-### ✅ Divisão Automática
-- Selecione quem pagou
-- Selecione entre quem dividir
-- O app calcula automaticamente quanto cada pessoa deve
-
-### ✅ Lista de Despesas
-- Visualize todas as despesas
-- Veja descrição, valor, categoria
-- Veja quem pagou e entre quem foi dividido
-- Delete despesas deslizando
-
-### ✅ Saldo por Pessoa
-- Veja quanto cada pessoa deve ou tem a receber
-- Sugestões otimizadas de pagamento
-- Indicadores visuais de status
-
-### ✅ Gráficos
-- Gráfico de pizza: distribuição por categoria
-- Gráfico de barras: gastos por categoria
-- Estatísticas detalhadas
-- Total gasto
-
-## 📂 Estrutura do Projeto
+## Project Structure
 
 ```
 FinanceTracker/
-├── App.js                      # Arquivo principal
-├── app.json                    # Configuração do Expo
-├── package.json                # Dependências
-├── components/
-│   ├── CameraInput.jsx         # Captura de foto e OCR
-│   ├── TransactionForm.jsx     # Formulário de despesas
-│   ├── TransactionList.jsx     # Lista de despesas
-│   ├── Balance.jsx             # Saldo por pessoa
-│   └── Chart.jsx               # Gráficos
-└── utils/
-    ├── ocr.js                  # Processamento OCR
-    └── storage.js              # Persistência de dados
+├── src/
+│   ├── components/
+│   │   ├── Dashboard.jsx          # Dashboard container
+│   │   ├── MonthSelector.jsx      # Month and year selector
+│   │   ├── TransactionForm.jsx    # Form to add transactions
+│   │   ├── TransactionTable.jsx   # Table displaying transactions
+│   │   ├── SummaryCards.jsx       # Financial summary cards
+│   │   └── Charts.jsx             # Chart components
+│   ├── utils/
+│   │   ├── financeUtils.js        # Financial calculation utilities
+│   │   └── storage.js             # localStorage operations
+│   ├── App.jsx                    # Main application component
+│   ├── App.css                    # Application styles
+│   └── main.jsx                   # React entry point
+├── index.html                     # HTML entry point
+├── vite.config.js                 # Vite configuration
+└── package.json                   # Project dependencies
 ```
 
-## 🛠️ Tecnologias Utilizadas
+## Usage
 
-- **React Native** - Framework mobile
-- **Expo** - Plataforma de desenvolvimento
-- **expo-camera** - Acesso à câmera
-- **expo-image-picker** - Seleção de imagens
-- **Tesseract.js** - OCR (Reconhecimento de texto)
-- **AsyncStorage** - Armazenamento local
-- **react-native-chart-kit** - Gráficos
-- **react-native-svg** - Renderização de SVG
+### Adding a Transaction
 
-## 📝 Como Usar
+1. Fill in the transaction form with:
+   - Description (e.g., "Salary", "Groceries")
+   - Amount
+   - Type (Income or Expense)
+   - Category (automatically filtered based on type)
+   - Date
 
-1. **Adicionar Pessoa**
-   - Na aba "Adicionar", no formulário, digite o nome da nova pessoa
-   - Clique no botão "+" para adicionar
+2. Click "Add Transaction"
 
-2. **Adicionar Despesa via Câmera**
-   - Clique em "Escanear Recibo com Câmera"
-   - Tire foto do recibo
-   - O OCR processará e extrairá o valor
-   - Confirme ou corrija o valor
-   - Preencha os demais campos (descrição, categoria, etc.)
+### Viewing Monthly Data
 
-3. **Adicionar Despesa Manual**
-   - Na aba "Adicionar", preencha o formulário
-   - Escolha categoria, quem pagou, entre quem dividir
-   - Clique em "Adicionar Despesa"
+1. Use the month and year dropdowns at the top
+2. Dashboard, charts, and transaction table update automatically
 
-4. **Ver Histórico**
-   - Vá para aba "Lista"
-   - Veja todas as despesas
-   - Toque no ícone de lixeira para deletar
+### Deleting a Transaction
 
-5. **Ver Saldo**
-   - Vá para aba "Saldo"
-   - Veja quanto cada pessoa deve/recebe
-   - Veja sugestões de pagamento otimizadas
+Click the "Delete" button next to any transaction in the table
 
-6. **Ver Gráficos**
-   - Vá para aba "Gráficos"
-   - Visualize distribuição de gastos
-   - Veja estatísticas detalhadas
+## Categories
 
-## ⚠️ Notas Importantes
+### Income Categories:
 
-- **OCR**: O reconhecimento de texto funciona melhor com recibos bem iluminados e legíveis
-- **Permissões**: O app precisa de permissão para acessar a câmera
-- **Dados**: Todos os dados são salvos localmente no dispositivo
-- **Performance**: O OCR pode demorar alguns segundos para processar imagens grandes
+- Salary
+- Freelance
+- Investments
+- Other Income
 
-## 🐛 Troubleshooting
+### Expense Categories:
 
-### Erro ao instalar dependências
-```bash
-npm install --legacy-peer-deps
-```
+- Housing
+- Food
+- Transport
+- Shopping
+- Subscriptions
+- Health
+- Entertainment
+- Other
 
-### Erro de permissão da câmera
-- Verifique as configurações do celular
-- Permita acesso à câmera para o Expo Go
+## Screenshots
 
-### OCR não funciona
-- Tente com imagem mais nítida
-- Use inserção manual se necessário
-- Verifique se a imagem tem texto legível
+_Screenshots will be added here to showcase the application interface_
 
-## 📄 Licença
+- Dashboard view
+- Transaction management
+- Charts and analytics
+- Mobile responsive view
 
-Este projeto é de código aberto e está disponível sob a licença MIT.
+## Future Improvements
 
-## 👨‍💻 Desenvolvimento
+- [ ] **Edit Transaction** - Allow users to edit existing transactions
+- [ ] **Export to CSV** - Download transaction data
+- [ ] **Multi-currency Support** - Track expenses in different currencies
+- [ ] **Recurring Transactions** - Set up automatic monthly transactions
+- [ ] **Budget Goals** - Set spending limits per category
+- [ ] **Search and Filter** - Advanced filtering options
+- [ ] **Dark Mode** - Theme toggle for better UX
+- [ ] **Year Overview** - Annual financial summary
+- [ ] **Categories Management** - Custom category creation
+- [ ] **Data Backup** - Cloud sync or export/import functionality
+- [ ] **Multi-user Support** - User accounts and authentication
 
-Desenvolvido com ❤️ usando React Native + Expo
+## Contributing
 
----
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Pronto para usar!** 🚀
+## License
 
-Execute `npx expo start` e comece a gerenciar suas finanças!
+MIT License
+
+Copyright (c) 2026
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Author
+
+Built with ❤️ using React + Vite
