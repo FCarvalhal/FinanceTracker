@@ -13,38 +13,29 @@
   --dark-text: #2c3e50;
   --border-radius: 12px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.18);
+  --card-hover-translate: -5px;
 }
 
-* {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    'Roboto',
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
   color: var(--dark-text);
   line-height: 1.6;
+  transition: background 0.3s;
 }
 
 .App {
@@ -66,8 +57,9 @@ body {
 .navbar {
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
   box-shadow: var(--shadow-lg);
-  padding: 1.2rem 0;
+  padding: 1.2rem 2rem;
   border-bottom: 3px solid var(--secondary-color);
+  transition: var(--transition);
 }
 
 .navbar-brand {
@@ -77,7 +69,6 @@ body {
   background: linear-gradient(135deg, #ffffff 0%, #ecf0f1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
   transition: var(--transition);
 }
 
@@ -108,6 +99,9 @@ body {
   transition: var(--transition);
   margin: 0 0.25rem;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .nav-tabs .nav-link:hover {
@@ -121,7 +115,7 @@ body {
     var(--secondary-color) 0%,
     var(--info-color) 100%
   );
-  color: white !important;
+  color: #fff !important;
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
@@ -129,7 +123,7 @@ body {
 .nav-tabs .nav-link.active::after {
   content: '';
   position: absolute;
-  bottom: -8px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   width: 40%;
@@ -153,7 +147,7 @@ body {
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(var(--card-hover-translate));
   box-shadow: var(--shadow-lg);
 }
 
@@ -171,28 +165,10 @@ body {
   padding: 1.75rem;
 }
 
-/* Summary Cards with Gradients */
-.bg-success {
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
-}
+/* ===================================
+   SUMMARY CARDS
+   =================================== */
 
-.bg-danger {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
-}
-
-.bg-warning {
-  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
-}
-
-.bg-info {
-  background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%) !important;
-}
-
-/* Enhanced Summary Cards */
 .card.text-white {
   position: relative;
   overflow: hidden;
@@ -251,6 +227,9 @@ body {
 .table {
   margin-bottom: 0;
   font-size: 0.95rem;
+  background: white;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
 }
 
 .table thead {
@@ -270,10 +249,11 @@ body {
 .table tbody tr {
   border-bottom: 1px solid #e9ecef;
   transition: var(--transition);
+  cursor: pointer;
 }
 
 .table tbody tr:hover {
-  background: var(--light-bg);
+  background: #f0f4f8;
   transform: scale(1.01);
   box-shadow: var(--shadow-sm);
 }
@@ -372,7 +352,7 @@ body {
 .form-control:focus,
 .form-select:focus {
   border-color: var(--secondary-color);
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
   transform: translateY(-1px);
 }
 
@@ -405,7 +385,6 @@ body {
 .table tbody tr {
   animation: fadeIn 0.4s ease-out;
 }
-
 .card {
   animation: slideIn 0.5s ease-out;
 }
@@ -421,6 +400,7 @@ footer {
   margin-top: 4rem !important;
   box-shadow: var(--shadow-xl);
   border-top: 3px solid var(--secondary-color);
+  transition: var(--transition);
 }
 
 footer p {
@@ -436,29 +416,23 @@ footer p {
   .container {
     padding: 1rem 0.75rem;
   }
-
   .navbar-brand {
     font-size: 1.3rem !important;
   }
-
   .card-body {
     padding: 1.25rem;
   }
-
   .table {
     font-size: 0.85rem;
   }
-
   .btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
-
   .nav-tabs .nav-link {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
   }
-
   .card.text-white h3 {
     font-size: 1.5rem;
   }
@@ -468,7 +442,6 @@ footer p {
   .nav-tabs {
     flex-direction: column;
   }
-
   .nav-tabs .nav-link {
     width: 100%;
     margin: 0.25rem 0;
@@ -483,16 +456,13 @@ footer p {
   color: var(--success-color) !important;
   font-weight: 600;
 }
-
 .text-danger {
   color: var(--danger-color) !important;
   font-weight: 600;
 }
-
 .fw-bold {
   font-weight: 700 !important;
 }
-
 .mb-4 {
   margin-bottom: 2rem !important;
 }
