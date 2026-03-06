@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAccounts, addAccount, deleteAccount } from '../services/supabase';
 
 function AccountForm({ userId, onAccountAdded }) {

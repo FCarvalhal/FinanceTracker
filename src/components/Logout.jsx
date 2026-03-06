@@ -1,4 +1,3 @@
-import React from 'react';
 import { signOut } from '../services/supabase';
 
 function Logout({ onLogout }) {
