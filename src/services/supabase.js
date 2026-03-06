@@ -26,6 +26,14 @@ export async function deleteAccount(accountId, userId) {
     .eq('user_id', userId);
 }
 
+// Atualiza o saldo da conta pelo id
+export async function updateAccountBalance(accountId, newBalance) {
+  return supabase
+    .from('accounts')
+    .update({ balance: Number(newBalance) })
+    .eq('id', accountId);
+}
+
 // Transactions
 export async function fetchTransactions(userId) {
   return supabase

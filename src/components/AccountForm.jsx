@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { fetchAccounts, addAccount, deleteAccount } from '../services/supabase';
+import { useState } from 'react';
+import { addAccount, updateAccountBalance } from '../services/supabase';
 
 function AccountForm({ userId, onAccountAdded }) {
   const [name, setName] = useState('');
@@ -36,7 +36,7 @@ function AccountForm({ userId, onAccountAdded }) {
             onChange={(e) => setType(e.target.value)}
           >
             <option value='banco'>Conta Corrente</option>
-            <option value='cartao_credito'>Cartão de Crédito</option>
+            <option value='cartao_credito'>Cart�o de Cr�dito</option>
             <option value='dinheiro'>Dinheiro</option>
             <option value='carteira_digital'>Revolut/Wallet</option>
           </select>
@@ -116,7 +116,30 @@ function AccountForm({ userId, onAccountAdded }) {
   );
 }
 
-function AccountTable({ userId, accounts, onDelete }) {
+function AccountTable({ userId, accounts, onDelete, onAccountUpdated }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editValue, setEditValue] = useState(0);
+  const [saving, setSaving] = useState(false);
+
+  const handleEdit = (acc) => {
+    setEditingId(acc.id);
+    setEditValue(acc.balance);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditValue(0);
+  };
+
+  const handleSave = async (acc) => {
+    setSaving(true);
+    await updateAccountBalance(acc.id, Number(editValue));
+    setSaving(false);
+    setEditingId(null);
+    setEditValue(0);
+    if (typeof onAccountUpdated === 'function') onAccountUpdated();
+  };
+
   return (
     <div className='table-responsive account-table'>
       <table className='table table-borderless modern-account-table'>
@@ -125,7 +148,7 @@ function AccountTable({ userId, accounts, onDelete }) {
             <th>Nome</th>
             <th>Tipo</th>
             <th>Saldo</th>
-            <th></th>
+            <th>A��es</th>
           </tr>
         </thead>
         <tbody>
@@ -136,14 +159,56 @@ function AccountTable({ userId, accounts, onDelete }) {
             >
               <td>{acc.name}</td>
               <td>{acc.type}</td>
-              <td>{acc.balance}</td>
               <td>
-                <button
-                  className='btn btn-danger btn-sm account-delete-btn'
-                  onClick={() => onDelete(acc.id)}
-                >
-                  Eliminar
-                </button>
+                {editingId === acc.id ? (
+                  <input
+                    type='number'
+                    className='form-control form-control-sm account-balance-input'
+                    value={editValue}
+                    min={0}
+                    step={0.01}
+                    onChange={(e) => setEditValue(Number(e.target.value))}
+                    disabled={saving}
+                    style={{ maxWidth: 110 }}
+                  />
+                ) : (
+                  acc.balance
+                )}
+              </td>
+              <td style={{ whiteSpace: 'nowrap' }}>
+                {editingId === acc.id ? (
+                  <>
+                    <button
+                      className='btn btn-success btn-sm me-1'
+                      onClick={() => handleSave(acc)}
+                      disabled={saving}
+                    >
+                      {saving ? 'A guardar...' : 'Guardar'}
+                    </button>
+                    <button
+                      className='btn btn-secondary btn-sm'
+                      onClick={handleCancel}
+                      disabled={saving}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className='btn btn-outline-primary btn-sm me-1'
+                      onClick={() => handleEdit(acc)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className='btn btn-danger btn-sm account-delete-btn'
+                      onClick={() => onDelete(acc.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
@@ -200,9 +265,21 @@ function AccountTable({ userId, accounts, onDelete }) {
           border: none;
           font-weight: 500;
           color: #2d2d3a;
+          vertical-align: middle;
         }
         .modern-account-table td:last-child {
           text-align: right;
+        }
+        .account-balance-input {
+          border-radius: 8px;
+          border: 1.5px solid #bdbdbd;
+          font-weight: 600;
+          background: #f8fafd;
+          box-shadow: 0 1px 4px rgba(80, 80, 120, 0.06);
+          padding: 0.2rem 0.5rem;
+          font-size: 1rem;
+          max-width: 110px;
+          display: inline-block;
         }
         .account-delete-btn {
           border-radius: 8px;

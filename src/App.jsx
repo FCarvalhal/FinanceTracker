@@ -102,6 +102,8 @@ function App() {
       fetchTransactions(user.id).then(({ data }) =>
         setAllTransactions(data || []),
       );
+      // Refetch accounts to reflect updated balance
+      fetchAccounts(user.id).then(({ data }) => setAccounts(data || []));
     }
   };
 
@@ -189,6 +191,9 @@ function App() {
             userId={user.id}
             accounts={accounts}
             onDelete={handleDeleteAccount}
+            onAccountUpdated={() =>
+              fetchAccounts(user.id).then(({ data }) => setAccounts(data || []))
+            }
           />
         </div>
 

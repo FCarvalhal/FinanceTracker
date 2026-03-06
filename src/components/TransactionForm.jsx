@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../utils/financeUtils';
 import AccountSelector from './AccountSelector';
+import { updateAccountBalance } from '../services/supabase';
 
 const TransactionForm = ({ onAddTransaction, accounts = [], userId }) => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const TransactionForm = ({ onAddTransaction, accounts = [], userId }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (
       !formData.description ||
@@ -37,7 +38,19 @@ const TransactionForm = ({ onAddTransaction, accounts = [], userId }) => {
       );
       return;
     }
-    onAddTransaction(formData);
+    // Atualiza saldo da conta automaticamente
+    const acc = accounts.find((a) => a.id === formData.account_id);
+    if (acc) {
+      let newBalance = Number(acc.balance);
+      const amount = Number(formData.amount);
+      if (formData.type === 'income') {
+        newBalance += amount;
+      } else {
+        newBalance -= amount;
+      }
+      await updateAccountBalance(acc.id, newBalance);
+    }
+    await onAddTransaction(formData);
     setFormData({
       description: '',
       amount: '',
