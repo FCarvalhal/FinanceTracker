@@ -1,7 +1,12 @@
-import React from 'react';
 import MonthSelector from './MonthSelector';
 
-function Navbar({ selectedMonth, selectedYear, onMonthChange, onYearChange }) {
+function Navbar({
+  selectedMonth,
+  selectedYear,
+  onMonthChange,
+  onYearChange,
+  rightContent,
+}) {
   return (
     <nav
       className='navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4'
@@ -23,12 +28,16 @@ function Navbar({ selectedMonth, selectedYear, onMonthChange, onYearChange }) {
             onYearChange={onYearChange}
             compact
           />
-          <span
-            className='d-inline-flex align-items-center justify-content-center rounded-circle bg-light border ms-2'
-            style={{ width: 40, height: 40 }}
-          >
-            <i className='bi bi-person-circle fs-4 text-secondary' />
-          </span>
+          {rightContent ? (
+            <span className='ms-2'>{rightContent}</span>
+          ) : (
+            <span
+              className='d-inline-flex align-items-center justify-content-center rounded-circle bg-light border ms-2'
+              style={{ width: 40, height: 40 }}
+            >
+              <i className='bi bi-person-circle fs-4 text-secondary' />
+            </span>
+          )}
         </div>
       </div>
     </nav>

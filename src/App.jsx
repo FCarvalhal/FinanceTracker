@@ -1,15 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import TransactionForm from './components/TransactionForm';
 import TransactionTable from './components/TransactionTable';
 import Charts from './components/Charts';
 import MonthlyOverview from './components/MonthlyOverview';
 import SummaryCards from './components/SummaryCards';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import Logout from './components/Logout';
+import { AccountForm, AccountTable } from './components/AccountForm';
+import AccountSelector from './components/AccountSelector';
 import {
-  loadTransactions,
+  fetchTransactions,
   addTransaction,
   deleteTransaction,
-} from './utils/storage';
+  fetchAccounts,
+  addAccount,
+  deleteAccount,
+  getSession,
+  onAuthStateChange,
+} from './services/supabase';
 import {
   filterTransactionsByMonth,
   getCurrentMonthYear,
@@ -19,8 +29,14 @@ import {
 import './App.css';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [authView, setAuthView] = useState('login');
   const [allTransactions, setAllTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [accountsLoading, setAccountsLoading] = useState(false);
+  const [transactionsLoading, setTransactionsLoading] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState('');
 
   const currentMonthYear = getCurrentMonthYear();
   const [selectedMonth, setSelectedMonth] = useState(
@@ -29,11 +45,38 @@ function App() {
   const [selectedYear, setSelectedYear] = useState(currentMonthYear.year);
   const [activeTab, setActiveTab] = useState('monthly');
 
-  // Load transactions from localStorage on mount
+  // Auth state
   useEffect(() => {
-    const transactions = loadTransactions();
-    setAllTransactions(transactions);
+    getSession().then(({ data }) => {
+      setUser(data.session?.user || null);
+    });
+    const { data: listener } = onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
+
+  // Fetch accounts
+  useEffect(() => {
+    if (!user) return;
+    setAccountsLoading(true);
+    fetchAccounts(user.id).then(({ data }) => {
+      setAccounts(data || []);
+      setAccountsLoading(false);
+    });
+  }, [user]);
+
+  // Fetch transactions
+  useEffect(() => {
+    if (!user) return;
+    setTransactionsLoading(true);
+    fetchTransactions(user.id).then(({ data }) => {
+      setAllTransactions(data || []);
+      setTransactionsLoading(false);
+    });
+  }, [user]);
 
   // Filter transactions when month/year or allTransactions changes
   useEffect(() => {
@@ -46,17 +89,67 @@ function App() {
     setFilteredTransactions(filtered);
   }, [allTransactions, selectedMonth, selectedYear]);
 
-  const handleAddTransaction = (transactionData) => {
-    const newTransaction = addTransaction(transactionData);
-    setAllTransactions((prev) => [...prev, newTransaction]);
-  };
-
-  const handleDeleteTransaction = (id) => {
-    if (window.confirm('Tem a certeza que deseja eliminar esta transação?')) {
-      deleteTransaction(id);
-      setAllTransactions((prev) => prev.filter((t) => t.id !== id));
+  // Add transaction
+  const handleAddTransaction = async (transactionData) => {
+    if (!user) return;
+    const tx = {
+      ...transactionData,
+      user_id: user.id,
+      account_id: transactionData.account_id || selectedAccountId,
+    };
+    const { data, error } = await addTransaction(tx);
+    if (!error) {
+      fetchTransactions(user.id).then(({ data }) =>
+        setAllTransactions(data || []),
+      );
     }
   };
+
+  // Delete transaction
+  const handleDeleteTransaction = async (id) => {
+    if (!user) return;
+    if (window.confirm('Tem a certeza que deseja eliminar esta transação?')) {
+      await deleteTransaction(id, user.id);
+      fetchTransactions(user.id).then(({ data }) =>
+        setAllTransactions(data || []),
+      );
+    }
+  };
+
+  // Add account
+  const handleAddAccount = async (account) => {
+    if (!user) return;
+    await addAccount({ ...account, user_id: user.id });
+    fetchAccounts(user.id).then(({ data }) => setAccounts(data || []));
+  };
+
+  // Delete account
+  const handleDeleteAccount = async (accountId) => {
+    if (!user) return;
+    await deleteAccount(accountId, user.id);
+    fetchAccounts(user.id).then(({ data }) => setAccounts(data || []));
+  };
+
+  // Auth handlers
+  const handleLogout = () => {
+    setUser(null);
+    setAllTransactions([]);
+    setAccounts([]);
+  };
+
+  if (!user) {
+    return authView === 'login' ? (
+      <Login
+        onLogin={() => setAuthView('login')}
+        switchToSignup={() => setAuthView('signup')}
+      />
+    ) : (
+      <Signup
+        onSignup={() => setAuthView('login')}
+        switchToLogin={() => setAuthView('login')}
+      />
+    );
+  }
 
   const handleMonthChange = (month) => {
     setSelectedMonth(month);
@@ -68,16 +161,37 @@ function App() {
 
   return (
     <div className='App bg-light min-vh-100 d-flex flex-column'>
-      {/* Modern Navbar with MonthSelector */}
+      {/* Navbar with Logout and user email */}
       <Navbar
         selectedMonth={selectedMonth}
         selectedYear={selectedYear}
         onMonthChange={handleMonthChange}
         onYearChange={handleYearChange}
+        rightContent={
+          <div className='d-flex align-items-center gap-2'>
+            <span className='me-2 text-secondary small'>{user.email}</span>
+            <Logout onLogout={handleLogout} />
+          </div>
+        }
       />
 
-      {/* Main Content */}
       <div className='container flex-grow-1'>
+        {/* Accounts management */}
+        <div className='mb-4'>
+          <h5 className='mb-2'>Contas</h5>
+          <AccountForm
+            userId={user.id}
+            onAccountAdded={() =>
+              fetchAccounts(user.id).then(({ data }) => setAccounts(data || []))
+            }
+          />
+          <AccountTable
+            userId={user.id}
+            accounts={accounts}
+            onDelete={handleDeleteAccount}
+          />
+        </div>
+
         {/* Tab Navigation */}
         <ul className='nav nav-tabs mb-4' role='tablist'>
           <li className='nav-item' role='presentation'>
@@ -107,37 +221,32 @@ function App() {
           {/* Monthly Dashboard Tab */}
           {activeTab === 'monthly' && (
             <div className='tab-pane fade show active'>
-              {/* Summary Cards */}
               <SummaryCards transactions={filteredTransactions} />
-
-              {/* Charts */}
               <Charts transactions={filteredTransactions} />
-
               <div className='row g-4'>
                 <div className='col-lg-5'>
-                  {/* Transaction Form */}
-                  <TransactionForm onAddTransaction={handleAddTransaction} />
+                  <TransactionForm
+                    onAddTransaction={handleAddTransaction}
+                    accounts={accounts}
+                    userId={user.id}
+                  />
                 </div>
                 <div className='col-lg-7'>
-                  {/* Transaction Table */}
                   <TransactionTable
                     transactions={filteredTransactions}
                     onDelete={handleDeleteTransaction}
+                    accounts={accounts}
                   />
                 </div>
               </div>
             </div>
           )}
-
           {/* Global Overview Tab */}
           {activeTab === 'global' && (
             <div className='tab-pane fade show active'>
-              {/* Monthly Overview - Global Summary */}
               <MonthlyOverview
                 monthlyData={getMonthlyOverview(allTransactions)}
               />
-
-              {/* All Transactions Table */}
               <div className='card mb-4'>
                 <div className='card-body'>
                   <h5 className='card-title'>
@@ -146,6 +255,7 @@ function App() {
                   <TransactionTable
                     transactions={allTransactions}
                     onDelete={handleDeleteTransaction}
+                    accounts={accounts}
                   />
                 </div>
               </div>
@@ -154,7 +264,6 @@ function App() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className='bg-white text-center text-muted py-3 mt-5 shadow-sm'>
         <div className='container'>
           <p className='mb-0'>Gestor de Finanças Pessoais © 2026</p>

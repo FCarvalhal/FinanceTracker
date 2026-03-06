@@ -1,4 +1,3 @@
-import React from 'react';
 import SummaryCards from './SummaryCards';
 
 const Dashboard = ({ transactions, selectedMonth, selectedYear }) => {

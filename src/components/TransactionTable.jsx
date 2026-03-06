@@ -1,8 +1,7 @@
-import React from 'react';
 import { formatCurrency, formatDate } from '../utils/financeUtils';
 
-const TransactionTable = ({ transactions, onDelete }) => {
-  if (transactions.length === 0) {
+const TransactionTable = ({ transactions, onDelete, accounts = [] }) => {
+  if (!transactions || transactions.length === 0) {
     return (
       <div className='card mb-4'>
         <div className='card-body text-center py-5'>
@@ -17,6 +16,12 @@ const TransactionTable = ({ transactions, onDelete }) => {
       </div>
     );
   }
+
+  // Helper para obter o nome da conta
+  const getAccountName = (account_id) => {
+    const acc = accounts.find((a) => a.id === account_id);
+    return acc ? acc.name : '—';
+  };
 
   return (
     <div className='card mb-4' style={{ border: '2px solid #e9ecef' }}>
@@ -36,15 +41,16 @@ const TransactionTable = ({ transactions, onDelete }) => {
             <thead>
               <tr>
                 <th style={{ width: '12%' }}>📅 Data</th>
-                <th style={{ width: '25%' }}>📝 Descrição</th>
-                <th style={{ width: '18%' }}>📂 Categoria</th>
-                <th style={{ width: '15%' }} className='text-center'>
+                <th style={{ width: '20%' }}>📝 Descrição</th>
+                <th style={{ width: '14%' }}>🏦 Conta</th>
+                <th style={{ width: '14%' }}>📂 Categoria</th>
+                <th style={{ width: '12%' }} className='text-center'>
                   🏷️ Tipo
                 </th>
-                <th style={{ width: '18%' }} className='text-end'>
+                <th style={{ width: '14%' }} className='text-end'>
                   💰 Valor
                 </th>
-                <th style={{ width: '12%' }} className='text-center'>
+                <th style={{ width: '14%' }} className='text-center'>
                   ⚙️ Ações
                 </th>
               </tr>
@@ -58,6 +64,7 @@ const TransactionTable = ({ transactions, onDelete }) => {
                   <td style={{ fontWeight: '600' }}>
                     {transaction.description}
                   </td>
+                  <td>{getAccountName(transaction.account_id)}</td>
                   <td>
                     <span
                       className='badge'

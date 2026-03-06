@@ -1,51 +1,50 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from '../utils/financeUtils';
+import AccountSelector from './AccountSelector';
 
-const TransactionForm = ({ onAddTransaction }) => {
+const TransactionForm = ({ onAddTransaction, accounts = [], userId }) => {
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
     type: 'expense',
     category: 'Alimentação',
     date: new Date().toISOString().split('T')[0],
+    account_id: '',
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-
-      // Update category when type changes
       if (name === 'type') {
         updated.category =
           value === 'income' ? INCOME_CATEGORIES[0] : EXPENSE_CATEGORIES[0];
       }
-
       return updated;
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (
       !formData.description ||
       !formData.amount ||
-      parseFloat(formData.amount) <= 0
+      parseFloat(formData.amount) <= 0 ||
+      !formData.account_id
     ) {
-      alert('Por favor, preencha todos os campos com valores válidos');
+      alert(
+        'Por favor, preencha todos os campos com valores válidos e selecione uma conta',
+      );
       return;
     }
-
     onAddTransaction(formData);
-
-    // Reset form
     setFormData({
       description: '',
       amount: '',
       type: 'expense',
       category: 'Alimentação',
       date: new Date().toISOString().split('T')[0],
+      account_id: '',
     });
   };
 
@@ -80,13 +79,9 @@ const TransactionForm = ({ onAddTransaction }) => {
                 onChange={handleChange}
                 placeholder='Ex: Salário, Supermercado...'
                 required
-                style={{
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                }}
+                style={{ borderRadius: '8px', padding: '0.75rem' }}
               />
             </div>
-
             <div className='col-md-6'>
               <label htmlFor='amount' className='form-label'>
                 💰 Valor (€)
@@ -111,9 +106,8 @@ const TransactionForm = ({ onAddTransaction }) => {
               />
             </div>
           </div>
-
           <div className='row g-3 mt-2'>
-            <div className='col-md-4'>
+            <div className='col-md-3'>
               <label htmlFor='type' className='form-label'>
                 🏷️ Tipo
               </label>
@@ -133,8 +127,7 @@ const TransactionForm = ({ onAddTransaction }) => {
                 <option value='expense'>💸 Despesa</option>
               </select>
             </div>
-
-            <div className='col-md-4'>
+            <div className='col-md-3'>
               <label htmlFor='category' className='form-label'>
                 📂 Categoria
               </label>
@@ -157,8 +150,7 @@ const TransactionForm = ({ onAddTransaction }) => {
                 ))}
               </select>
             </div>
-
-            <div className='col-md-4'>
+            <div className='col-md-3'>
               <label htmlFor='date' className='form-label'>
                 📅 Data
               </label>
@@ -170,14 +162,22 @@ const TransactionForm = ({ onAddTransaction }) => {
                 value={formData.date}
                 onChange={handleChange}
                 required
-                style={{
-                  borderRadius: '8px',
-                  padding: '0.75rem',
-                }}
+                style={{ borderRadius: '8px', padding: '0.75rem' }}
+              />
+            </div>
+            <div className='col-md-3'>
+              <label htmlFor='account_id' className='form-label'>
+                🏦 Conta
+              </label>
+              <AccountSelector
+                userId={userId}
+                accountId={formData.account_id}
+                setAccountId={(id) =>
+                  setFormData((prev) => ({ ...prev, account_id: id }))
+                }
               />
             </div>
           </div>
-
           <div className='mt-4'>
             <button
               type='submit'
